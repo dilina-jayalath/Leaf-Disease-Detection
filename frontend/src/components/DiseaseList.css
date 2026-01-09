@@ -1,0 +1,106 @@
+.disease-list-container {
+    width: 100%;
+}
+
+.page-title {
+    display: none;
+    /* Title is now in Header */
+}
+
+.disease-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.disease-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+}
+
+.disease-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(46, 125, 50, 0.15);
+    border-color: rgba(46, 125, 50, 0.2);
+}
+
+.disease-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.no-image {
+    width: 100%;
+    height: 180px;
+    background-color: #f1f8e9;
+    color: #689f38;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+.disease-info {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.disease-info h3 {
+    margin: 0 0 8px 0;
+    color: var(--color-text-main);
+    font-size: 18px;
+}
+
+.disease-info p {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 20px 0;
+    flex: 1;
+}
+
+.card-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: auto;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    flex: 1;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background: var(--color-primary-hover);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-outline:hover {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
