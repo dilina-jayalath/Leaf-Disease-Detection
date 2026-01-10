@@ -12,7 +12,11 @@ class Disease(models.Model):
     def __str__(self):
         return self.name
 
-# Placeholder for PredictionHistory if needed later
 class PredictionHistory(models.Model):
+    image = models.ImageField(upload_to='predictions/')
+    disease = models.ForeignKey(Disease, on_delete=models.SET_NULL, null=True, blank=True)
+    confidence = models.FloatField(default=0.0)
     timestamp = models.DateTimeField(auto_now_add=True)
-    # Add other fields as necessary
+
+    def __str__(self):
+        return f"Prediction at {self.timestamp}"

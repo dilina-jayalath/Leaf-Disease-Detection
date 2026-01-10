@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import DiseaseList from './components/DiseaseList';
 import DiseaseDetail from './components/DiseaseDetail';
+import DiseaseIdentifier from './components/DiseaseIdentifier';
 import Chatbot from './components/Chatbot';
 import './App.css';
 
@@ -29,6 +30,11 @@ function App() {
           <Route path="/chat" element={
             <Layout title="AI Assistant">
               <Chatbot />
+            </Layout>
+          } />
+          <Route path="/identify" element={
+            <Layout title="Identify Disease">
+              <DiseaseIdentifier />
             </Layout>
           } />
         </Routes>

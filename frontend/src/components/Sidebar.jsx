@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Leaf, MessageSquare, Flower2 } from 'lucide-react';
+import { LayoutDashboard, Leaf, MessageSquare, Flower2, ScanLine } from 'lucide-react';
 import './Sidebar.css';
 
 const Sidebar = () => {
@@ -22,6 +22,10 @@ const Sidebar = () => {
                     <NavLink to="/diseases" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                         <Flower2 size={20} className="nav-icon" />
                         Diseases
+                    </NavLink>
+                    <NavLink to="/identify" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                        <ScanLine size={20} className="nav-icon" />
+                        Identify
                     </NavLink>
                     <NavLink to="/chat" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                         <MessageSquare size={20} className="nav-icon" />
