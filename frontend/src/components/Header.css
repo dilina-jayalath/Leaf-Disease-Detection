@@ -54,3 +54,43 @@
     transform: translateY(-2px);
     color: var(--color-primary);
 }
+
+.menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    margin-right: 12px;
+    border-radius: 4px;
+}
+
+.menu-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 0 20px;
+        gap: 12px;
+    }
+
+    .menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .search-bar {
+        display: none;
+    }
+
+    .header-title h2 {
+        font-size: 20px;
+    }
+}

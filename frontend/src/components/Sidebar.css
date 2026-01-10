@@ -9,7 +9,20 @@
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 100;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+    }
 }
 
 .sidebar-logo {
@@ -102,4 +115,44 @@
 .user-info span {
     font-size: 12px;
     color: var(--color-text-muted);
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.close-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: none;
+    border-radius: 4px;
+}
+
+.close-btn:hover {
+    background-color: var(--color-background);
+}
+
+@media (max-width: 768px) {
+    .close-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 }

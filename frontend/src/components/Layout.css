@@ -15,3 +15,13 @@
     padding: 0 40px 40px;
     flex: 1;
 }
+
+@media (max-width: 768px) {
+    .main-wrapper {
+        margin-left: 0;
+    }
+
+    .content-area {
+        padding: 0 20px 20px;
+    }
+}

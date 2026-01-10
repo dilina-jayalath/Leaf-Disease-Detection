@@ -1,12 +1,17 @@
 import React from 'react';
-import { Search, Bell, Settings } from 'lucide-react';
+import { Search, Bell, Settings, Menu } from 'lucide-react';
 import './Header.css';
 
-const Header = ({ title }) => {
+const Header = ({ title, onMenuClick }) => {
     return (
         <header className="header">
-            <div className="header-title">
-                <h2>{title}</h2>
+            <div className="header-left">
+                <button className="menu-btn" onClick={onMenuClick}>
+                    <Menu size={24} color="#1B261C" />
+                </button>
+                <div className="header-title">
+                    <h2>{title}</h2>
+                </div>
             </div>
             <div className="header-actions">
                 <div className="search-bar">
