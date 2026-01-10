@@ -19,6 +19,37 @@ import io
 DEVICE = torch.device("cpu") # Server usually CPU, or cuda if available
 CLASS_NAMES = ['Blight', 'Common_Rust', 'Gray_Leaf_Spot', 'Healthy']
 
+DISEASE_INFO = {
+    "Blight": {
+        "description": "Northern Corn Leaf Blight (NCLB) is a fungal disease that causes cigar-shaped lesions on leaves, potentially reducing yield significantly if infection occurs before silking.",
+        "symptoms": "Long, elliptical, grayish-green or tan lesions ranging from 1 to 6 inches in length. Lesions usually start on lower leaves and progress upward.",
+        "causes": "Caused by the fungus Exserohilum turcicum. Favored by moderate temperatures (64-81°F) and wet, humid weather.",
+        "treatment": "Apply fungicides containing strobilurins or triazoles if lesions appear early in the season.",
+        "prevention": "Use resistant corn hybrids. Rotate crops to reduce inoculum. Manage residue to speed up decomposition."
+    },
+    "Common_Rust": {
+        "description": "Common Rust is a fungal disease that produces raised pustules on both leaf surfaces. It is generally less damaging than southern rust but can cause yield loss in susceptible hybrids.",
+        "symptoms": "Small, oval to elongate, cinnamon-brown powdery pustules scattered on both upper and lower leaf surfaces.",
+        "causes": "Caused by the fungus Puccinia sorghi. Spores are transported by wind. Favored by cool, moist conditions.",
+        "treatment": "Fungicides are rarely economically justified unless infection is severe on young plants. Triazoles and strobilurins are effective.",
+        "prevention": "Plant resistant hybrids. Early planting can sometimes help avoid peak infection periods."
+    },
+    "Gray_Leaf_Spot": {
+        "description": "Gray Leaf Spot is a serious fungal disease affecting corn production worldwide, characterized by rectangular lesions that run parallel to leaf veins.",
+        "symptoms": "Tan to gray rectangular lesions bordered by leaf veins. Lesions may merge, killing entire leaves.",
+        "causes": "Caused by the fungus Cercospora zeae-maydis. Thrives in warm, humid conditions and reduced-tillage fields.",
+        "treatment": "Foliar fungicides applied at tasseling (VT) to silking (R1) stages.",
+        "prevention": "Crop rotation and tillage to bury residue. Select hybrids with moderate to high resistance."
+    },
+    "Healthy": {
+        "description": "The plant appears healthy with no visible signs of disease.",
+        "symptoms": "Green, vibrant leaves without spots, lesions, or yellowing.",
+        "causes": "N/A",
+        "treatment": "Continue regular maintenance including proper watering and fertilization.",
+        "prevention": "Maintain good agronomic practices, scout fields regularly, and manage pests."
+    }
+}
+
 def load_pytorch_model():
     try:
         model_path = os.path.join(os.path.dirname(__file__), 'model.pth')
@@ -102,13 +133,22 @@ def predict_disease(request):
             
             if not predicted_disease and predicted_label != "Unknown":
                 # Auto-create if missing so Frontend has something to show
+                info = DISEASE_INFO.get(predicted_label, {
+                    "description": f"Auto-generated entry for {predicted_label}.",
+                    "symptoms": "Symptoms to be added.",
+                    "causes": "Causes to be added.",
+                    "treatment": "Treatment to be added.",
+                    "prevention": "Prevention to be added."
+                })
+
                 predicted_disease = Disease.objects.create(
                     name=predicted_label,
-                    description=f"Auto-generated entry for {predicted_label}. Please update details in Admin.",
-                    symptoms="Symptoms to be added.",
-                    causes="Causes to be added.",
-                    treatment="Treatment to be added.",
-                    prevention="Prevention to be added."
+                    description=info["description"],
+                    symptoms=info["symptoms"],
+                    causes=info["causes"],
+                    treatment=info["treatment"],
+                    prevention=info["prevention"],
+                    image=image_file
                 )
 
     except Exception as e:
@@ -130,15 +170,25 @@ def chatbot_response(request):
     
     response_text = "Sorry, I didn't understand that."
     
-    if "yellow" in user_msg or "leaves" in user_msg:
-        response_text = "Yellow leaves may be caused by overwatering or nutrient deficiency. Check soil moisture."
+    if "yellow" in user_msg:
+        response_text = "Yellow leaves often indicate nitrogen deficiency or overwatering. Check if the soil is waterlogged."
+    elif "blight" in user_msg:
+        response_text = "Northern Corn Leaf Blight causes cigar-shaped lesions. Treat with fungicides like strobilurins early in the season."
+    elif "rust" in user_msg:
+        response_text = "Common Rust appears as cinnamon-brown pustules. It usually doesn't require treatment unless severe, but resistant hybrids are the best prevention."
+    elif "spot" in user_msg or "gray" in user_msg:
+        response_text = "Gray Leaf Spot causes rectangular lesions. It thrives in humid conditions. Tillage and crop rotation help reduce it."
     elif "fungus" in user_msg or "spots" in user_msg:
-        response_text = "Use recommended fungicide spray and avoid overhead watering."
+        response_text = "Fungal spots are common. Improve air circulation and avoid overhead watering to reduce wetness on leaves."
     elif "water" in user_msg:
-        response_text = "Most plants need watering when the top inch of soil is dry."
+        response_text = "Corn needs consistent moisture, especially during silking. Aim for 1-1.5 inches of water per week."
     elif "fertilizer" in user_msg:
-        response_text = "Use a balanced NPK fertilizer during the growing season."
+        response_text = "Corn is a heavy feeder. Apply nitrogen-rich fertilizer at planting and side-dress when plants are knee-high."
+    elif "prevention" in user_msg or "prevent" in user_msg:
+        response_text = "The best prevention is planting resistant hybrids, rotating crops, and managing crop residue."
     elif "hello" in user_msg or "hi" in user_msg:
-        response_text = "Hello! I am your plant care assistant. Ask me about plant diseases or care tips."
+        response_text = "Hello! I can help you with corn diseases (Blight, Rust, Gray Leaf Spot) and general care tips."
+    else:
+        response_text = "I can answer questions about Blight, Rust, Gray Leaf Spot, watering, and fertilization. Try asking 'How to treat Blight?'"
         
     return Response({"response": response_text})

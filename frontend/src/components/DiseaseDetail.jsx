@@ -28,7 +28,11 @@ const DiseaseDetail = () => {
             <Link to="/" className="back-link">← Back to List</Link>
             <div className="detail-card">
                 {disease.image && (
-                    <img src={disease.image} alt={disease.name} className="detail-image" />
+                    <img
+                        src={disease.image.startsWith('http') ? disease.image : `http://localhost:8000${disease.image}`}
+                        alt={disease.name}
+                        className="detail-image"
+                    />
                 )}
                 <h1>{disease.name}</h1>
 

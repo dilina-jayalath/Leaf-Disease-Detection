@@ -28,7 +28,11 @@ const DiseaseList = () => {
                 {diseases.map(disease => (
                     <div key={disease.id} className="disease-card">
                         {disease.image ? (
-                            <img src={disease.image} alt={disease.name} className="disease-image" />
+                            <img
+                                src={disease.image.startsWith('http') ? disease.image : `http://localhost:8000${disease.image}`}
+                                alt={disease.name}
+                                className="disease-image"
+                            />
                         ) : (
                             <div className="no-image">No Image</div>
                         )}
