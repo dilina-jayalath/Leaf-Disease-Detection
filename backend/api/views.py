@@ -90,6 +90,10 @@ class DiseaseViewSet(viewsets.ModelViewSet):
     queryset = Disease.objects.all()
     serializer_class = DiseaseSerializer
 
+class PredictionViewSet(viewsets.ModelViewSet):
+    queryset = PredictionHistory.objects.all().order_by('-timestamp')
+    serializer_class = PredictionSerializer
+
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
 def predict_disease(request):

@@ -9,17 +9,33 @@ const DiseaseList = ({ showStats = true }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        api.get('diseases/')
+        const endpoint = showStats ? 'predictions/' : 'diseases/';
+
+        api.get(endpoint)
             .then(res => {
-                setDiseases(res.data);
+                let data = res.data;
+                // If fetching predictions, map them to a standardized format
+                if (showStats) {
+                    data = data.map(item => ({
+                        id: item.disease, // Use Disease ID for navigation
+                        uniqueKey: `pred-${item.id}`, // Unique key for React list
+                        name: item.disease_details ? item.disease_details.name : "Unknown",
+                        description: item.disease_details ? item.disease_details.description : "No description available.",
+                        image: item.image, // Use the uploaded prediction image
+                        timestamp: item.timestamp,
+                        isPrediction: true
+                    }));
+                }
+                setDiseases(data);
                 setLoading(false);
             })
             .catch(err => {
-                console.error("Error fetching diseases:", err);
+                console.error("Error fetching data:", err);
                 setLoading(false);
             });
-    }, []);
+    }, [showStats]);
 
+    // Stats calculation (works for both, but more relevant for predictions)
     const stats = {
         total: diseases.length,
         healthy: diseases.filter(d => d.name.toLowerCase().includes('healthy')).length,
@@ -72,7 +88,7 @@ const DiseaseList = ({ showStats = true }) => {
                 {diseases.map(disease => {
                     const isHealthy = disease.name.toLowerCase().includes('healthy');
                     return (
-                        <div key={disease.id} className={`disease-card ${isHealthy ? 'card-healthy' : 'card-alert'}`}>
+                        <div key={disease.uniqueKey || disease.id} className={`disease-card ${isHealthy ? 'card-healthy' : 'card-alert'}`}>
                             <div className="image-container">
                                 {disease.image ? (
                                     <img
