@@ -14,12 +14,12 @@ function App() {
         <Routes>
           <Route path="/" element={
             <Layout title="Disease Overview">
-              <DiseaseList />
+              <DiseaseList showStats={true} />
             </Layout>
           } />
           <Route path="/diseases" element={
             <Layout title="Manage Diseases">
-              <DiseaseList />
+              <DiseaseList showStats={false} />
             </Layout>
           } />
           <Route path="/disease/:id" element={
