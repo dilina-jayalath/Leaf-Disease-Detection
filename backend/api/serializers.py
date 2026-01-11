@@ -11,4 +11,4 @@ class PredictionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PredictionHistory
-        fields = ['id', 'image', 'disease', 'disease_details', 'confidence', 'timestamp']
+        fields = ['id', 'image', 'disease', 'disease_details', 'confidence', 'notes', 'timestamp']

@@ -16,6 +16,7 @@ class PredictionHistory(models.Model):
     image = models.ImageField(upload_to='predictions/')
     disease = models.ForeignKey(Disease, on_delete=models.SET_NULL, null=True, blank=True)
     confidence = models.FloatField(default=0.0)
+    notes = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
