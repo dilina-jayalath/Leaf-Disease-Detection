@@ -1,44 +1,61 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import AuthContext from './context/AuthContext';
 import Layout from './components/Layout';
 import DiseaseList from './components/DiseaseList';
 import DiseaseDetail from './components/DiseaseDetail';
 import DiseaseIdentifier from './components/DiseaseIdentifier';
 import Chatbot from './components/Chatbot';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import './App.css';
+
+const PrivateRoute = ({ children, title }) => {
+  let { user } = useContext(AuthContext);
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+  return <Layout title={title}>{children}</Layout>;
+};
 
 function App() {
   return (
     <Router>
-      <div className="app">
-        <Routes>
-          <Route path="/" element={
-            <Layout title="Disease Overview">
-              <DiseaseList showStats={true} />
-            </Layout>
-          } />
-          <Route path="/diseases" element={
-            <Layout title="Manage Diseases">
-              <DiseaseList showStats={false} />
-            </Layout>
-          } />
-          <Route path="/disease/:id" element={
-            <Layout title="Disease Details">
-              <DiseaseDetail />
-            </Layout>
-          } />
-          <Route path="/chat" element={
-            <Layout title="AI Assistant">
-              <Chatbot />
-            </Layout>
-          } />
-          <Route path="/identify" element={
-            <Layout title="Identify Disease">
-              <DiseaseIdentifier />
-            </Layout>
-          } />
-        </Routes>
-      </div>
+      <AuthProvider>
+        <div className="app">
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            <Route path="/" element={
+              <PrivateRoute title="Recent Assessments">
+                <DiseaseList showStats={true} />
+              </PrivateRoute>
+            } />
+            <Route path="/diseases" element={
+              <PrivateRoute title="Manage Diseases">
+                <DiseaseList showStats={false} />
+              </PrivateRoute>
+            } />
+            <Route path="/disease/:id" element={
+              <PrivateRoute title="Disease Details">
+                <DiseaseDetail />
+              </PrivateRoute>
+            } />
+            <Route path="/chat" element={
+              <PrivateRoute title="AI Assistant">
+                <Chatbot />
+              </PrivateRoute>
+            } />
+            <Route path="/identify" element={
+              <PrivateRoute title="Identify Disease">
+                <DiseaseIdentifier />
+              </PrivateRoute>
+            } />
+          </Routes>
+        </div>
+      </AuthProvider>
     </Router>
   );
 }

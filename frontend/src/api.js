@@ -7,4 +7,13 @@ const api = axios.create({
     },
 });
 
+api.interceptors.request.use(config => {
+    const tokens = localStorage.getItem('authTokens');
+    if (tokens) {
+        const parsedTokens = JSON.parse(tokens);
+        config.headers.Authorization = `Bearer ${parsedTokens.access}`;
+    }
+    return config;
+});
+
 export default api;

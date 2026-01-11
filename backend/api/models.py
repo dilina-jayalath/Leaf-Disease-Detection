@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Disease(models.Model):
     name = models.CharField(max_length=100)
@@ -13,6 +14,7 @@ class Disease(models.Model):
         return self.name
 
 class PredictionHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     image = models.ImageField(upload_to='predictions/')
     disease = models.ForeignKey(Disease, on_delete=models.SET_NULL, null=True, blank=True)
     confidence = models.FloatField(default=0.0)

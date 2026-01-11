@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Leaf, MessageSquare, Flower2, ScanLine, X } from 'lucide-react';
+import { LayoutDashboard, Leaf, MessageSquare, Flower2, ScanLine, X, LogOut } from 'lucide-react';
+import AuthContext from '../context/AuthContext';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen, onClose }) => {
+    let { user, logoutUser } = useContext(AuthContext);
+
     return (
         <>
             <div className={`sidebar-overlay ${isOpen ? 'open' : ''}`} onClick={onClose}></div>
@@ -41,11 +44,16 @@ const Sidebar = ({ isOpen, onClose }) => {
 
                 <div className="sidebar-footer">
                     <div className="user-profile">
-                        <div className="user-avatar"></div>
-                        <div className="user-info">
-                            <h4>Admin User</h4>
-                            <span>admin@verdanteye.com</span>
+                        <div className="user-avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e2e8f0', color: '#64748b', fontWeight: 'bold' }}>
+                            {user && user.username ? user.username.charAt(0).toUpperCase() : 'U'}
                         </div>
+                        <div className="user-info">
+                            <h4>{user ? user.username : 'User'}</h4>
+                            <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Active Now</span>
+                        </div>
+                        <button onClick={logoutUser} className="logout-btn" title="Logout" style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: 'auto', color: '#ef4444' }}>
+                            <LogOut size={20} />
+                        </button>
                     </div>
                 </div>
             </aside>

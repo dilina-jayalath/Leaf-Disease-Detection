@@ -3,8 +3,21 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from .models import Disease, PredictionHistory
-from .serializers import DiseaseSerializer, PredictionSerializer
+from rest_framework import viewsets, status, generics, permissions
+from rest_framework.decorators import api_view, parser_classes, permission_classes
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from .models import Disease, PredictionHistory
+from .serializers import DiseaseSerializer, PredictionSerializer, UserSerializer, MyTokenObtainPairSerializer
 import random
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+class RegisterView(generics.CreateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
 
 import os
 import torch
@@ -91,11 +104,15 @@ class DiseaseViewSet(viewsets.ModelViewSet):
     serializer_class = DiseaseSerializer
 
 class PredictionViewSet(viewsets.ModelViewSet):
-    queryset = PredictionHistory.objects.all().order_by('-timestamp')
     serializer_class = PredictionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return PredictionHistory.objects.filter(user=self.request.user).order_by('-timestamp')
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
+@permission_classes([permissions.IsAuthenticated])
 def predict_disease(request):
     if 'image' not in request.data:
         return Response({'error': 'No image provided'}, status=status.HTTP_400_BAD_REQUEST)
@@ -103,7 +120,7 @@ def predict_disease(request):
     image_file = request.data['image']
     
     # 1. SAVE RECORD
-    prediction_record = PredictionHistory.objects.create(image=image_file)
+    prediction_record = PredictionHistory.objects.create(image=image_file, user=request.user)
 
     # 2. PREDICT
     predicted_disease = None
