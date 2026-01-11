@@ -43,18 +43,20 @@ const Sidebar = ({ isOpen, onClose }) => {
                 </nav>
 
                 <div className="sidebar-footer">
-                    <div className="user-profile">
-                        <div className="user-avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e2e8f0', color: '#64748b', fontWeight: 'bold' }}>
-                            {user && user.username ? user.username.charAt(0).toUpperCase() : 'U'}
+                    <NavLink to="/profile" className="user-profile-link" style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}>
+                        <div className="user-profile">
+                            <div className="user-avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e2e8f0', color: '#64748b', fontWeight: 'bold' }}>
+                                {user && user.username ? user.username.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                            <div className="user-info">
+                                <h4>{user ? user.username : 'User'}</h4>
+                                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Active Now</span>
+                            </div>
                         </div>
-                        <div className="user-info">
-                            <h4>{user ? user.username : 'User'}</h4>
-                            <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Active Now</span>
-                        </div>
-                        <button onClick={logoutUser} className="logout-btn" title="Logout" style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: 'auto', color: '#ef4444' }}>
-                            <LogOut size={20} />
-                        </button>
-                    </div>
+                    </NavLink>
+                    <button onClick={logoutUser} className="logout-btn" title="Logout" style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: 'auto', color: '#ef4444', position: 'absolute', right: '20px', bottom: '25px' }}>
+                        <LogOut size={20} />
+                    </button>
                 </div>
             </aside>
         </>

@@ -24,6 +24,25 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return user
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ['email']
+
+    def validate_email(self, value):
+        user = self.context['request'].user
+        if User.objects.exclude(pk=user.pk).filter(email=value).exists():
+            raise serializers.ValidationError({"email": "This email is already in use."})
+        return value
+
+    def update(self, instance, validated_data):
+        instance.email = validated_data['email']
+        instance.username = validated_data['email'] # Sync username with email
+        instance.save()
+        return instance
+
 class DiseaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Disease

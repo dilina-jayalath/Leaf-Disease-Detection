@@ -9,6 +9,7 @@ import DiseaseIdentifier from './components/DiseaseIdentifier';
 import Chatbot from './components/Chatbot';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
 import './App.css';
 
 const PrivateRoute = ({ children, title }) => {
@@ -51,6 +52,11 @@ function App() {
             <Route path="/identify" element={
               <PrivateRoute title="Identify Disease">
                 <DiseaseIdentifier />
+              </PrivateRoute>
+            } />
+            <Route path="/profile" element={
+              <PrivateRoute title="User Profile">
+                <ProfilePage />
               </PrivateRoute>
             } />
           </Routes>
