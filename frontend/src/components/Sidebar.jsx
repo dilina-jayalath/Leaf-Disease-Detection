@@ -46,7 +46,11 @@ const Sidebar = ({ isOpen, onClose }) => {
                     <NavLink to="/profile" className="user-profile-link" style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}>
                         <div className="user-profile">
                             <div className="user-avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e2e8f0', color: '#64748b', fontWeight: 'bold' }}>
-                                {user && user.username ? user.username.charAt(0).toUpperCase() : 'U'}
+                                {user && user.username ? (
+                                    user.username.split(' ').length > 1
+                                        ? (user.username.split(' ')[0][0] + user.username.split(' ')[1][0]).toUpperCase()
+                                        : user.username.slice(0, 2).toUpperCase()
+                                ) : 'U'}
                             </div>
                             <div className="user-info">
                                 <h4>{user ? user.username : 'User'}</h4>

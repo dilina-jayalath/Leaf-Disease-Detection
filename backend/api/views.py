@@ -207,27 +207,65 @@ def predict_disease(request):
 def chatbot_response(request):
     user_msg = request.data.get('message', '').lower()
     
-    response_text = "Sorry, I didn't understand that."
-    
-    if "yellow" in user_msg:
-        response_text = "Yellow leaves often indicate nitrogen deficiency or overwatering. Check if the soil is waterlogged."
-    elif "blight" in user_msg:
-        response_text = "Northern Corn Leaf Blight causes cigar-shaped lesions. Treat with fungicides like strobilurins early in the season."
-    elif "rust" in user_msg:
-        response_text = "Common Rust appears as cinnamon-brown pustules. It usually doesn't require treatment unless severe, but resistant hybrids are the best prevention."
-    elif "spot" in user_msg or "gray" in user_msg:
-        response_text = "Gray Leaf Spot causes rectangular lesions. It thrives in humid conditions. Tillage and crop rotation help reduce it."
-    elif "fungus" in user_msg or "spots" in user_msg:
-        response_text = "Fungal spots are common. Improve air circulation and avoid overhead watering to reduce wetness on leaves."
-    elif "water" in user_msg:
-        response_text = "Corn needs consistent moisture, especially during silking. Aim for 1-1.5 inches of water per week."
-    elif "fertilizer" in user_msg:
-        response_text = "Corn is a heavy feeder. Apply nitrogen-rich fertilizer at planting and side-dress when plants are knee-high."
-    elif "prevention" in user_msg or "prevent" in user_msg:
-        response_text = "The best prevention is planting resistant hybrids, rotating crops, and managing crop residue."
-    elif "hello" in user_msg or "hi" in user_msg:
-        response_text = "Hello! I can help you with corn diseases (Blight, Rust, Gray Leaf Spot) and general care tips."
-    else:
-        response_text = "I can answer questions about Blight, Rust, Gray Leaf Spot, watering, and fertilization. Try asking 'How to treat Blight?'"
-        
-    return Response({"response": response_text})
+    # Define Chatbot Rules: (Keywords) -> Response
+    CHAT_RULES = [
+        # --- GREETINGS ---
+        (["hello", "hi", "hey", "greetings"], 
+         "Hello! I am your Corn Disease Assistant. I can help you with Blight, Common Rust, Gray Leaf Spot, and general corn care advice."),
+        (["who are you", "what are you"], 
+         "I am an AI-powered assistant designed to help farmers identify and manage corn diseases."),
+
+        # --- BLIGHT (NCLB) ---
+        (["blight symptoms", "signs of blight", "look like blight"], 
+         "Northern Corn Leaf Blight (NCLB) causes long, cigar-shaped, grayish-green or tan lesions (1-6 inches). They usually start on lower leaves and move up."),
+        (["treat blight", "cure blight", "stop blight", "blight treatment"], 
+         "To manage Blight: 1. Apply fungicides containing strobilurins or triazoles early (VT to R1 stages). 2. Rotate crops to reduce fungus in residue."),
+        (["prevent blight", "avoid blight", "blight resistant"], 
+         "Prevention is key! Plant resistant corn hybrids and manage crop residue through tillage or rotation to limit the fungus Exserohilum turcicum."),
+        (["what is blight", "explain blight"],
+         "Blight (NCLB) is a fungal disease that destroys leaf tissue, reducing photosynthesis. If it hits before silking, it can severely impact yield."),
+
+        # --- COMMON RUST ---
+        (["rust symptoms", "signs of rust", "look like rust"], 
+         "Common Rust appears as small, cinnamon-brown, powdery pustules on BOTH upper and lower leaf surfaces. They are often circular or elongated."),
+        (["treat rust", "cure rust", "stop rust", "rust treatment"], 
+         "Fungicides are rarely needed for Common Rust unless infection is severe on very young plants. Triazoles and strobilurins work well."),
+        (["is rust dangerous", "rust damage"], 
+         "Common Rust is usually less damaging than Southern Rust, but severe infections can cause yield loss, especially in sweet corn or susceptible hybrids."),
+        (["prevent rust", "avoid rust"], 
+         "The best defense is planting resistant hybrids. Early planting can also help avoid the peak spore season."),
+
+        # --- GRAY LEAF SPOT ---
+        (["gray leaf spot", "gls", "rectangular", "spot symptoms"], 
+         "Gray Leaf Spot causes rectangular, tan-to-gray lesions that run strictly parallel to the leaf veins. It thrives in warm, humid weather."),
+        (["treat gray leaf spot", "treat gls"], 
+         "Fungicides applied at tasseling (VT) to silking (R1) are most effective. Look for mixed-mode-of-action products."),
+
+        # --- GENERAL CORN CARE ---
+        (["yellow leaves", "yellowing"], 
+         "Yellowing leaves often mean Nitrogen deficiency (V-shaped yellowing starting at tip) or wet feet (waterlogged soil). Check your drainage and fertilizer."),
+        (["watering", "how much water", "irrigation"], 
+         "Corn needs about 1 to 1.5 inches of water per week. The most critical time for water is during silking and pollination."),
+        (["fertilizer", "nitrogen", "feeding"], 
+         "Corn is a heavy feeder! It needs lots of Nitrogen. Apply starter fertilizer at planting and side-dress when plants are knee-high (V4-V8 stage)."),
+        (["planting depth", "how deep"], 
+         "Plant corn seeds 1.5 to 2 inches deep. Planting shallower can lead to poor root development (rootless corn syndrome)."),
+        (["soil ph", "best soil"], 
+         "Corn prefers well-drained soil with a pH between 6.0 and 7.0. conduct a soil test to check specific nutrient needs."),
+        (["pests", "bugs", "worms"], 
+         "Common pests include Corn Earworm, European Corn Borer, and Rootworms. Scouting is essential. Bt-corn hybrids offer built-in protection against some larvae."),
+        (["harvest", "when to harvest"], 
+         "Harvest field corn when the 'black layer' forms at the kernel base (physiological maturity). Moisture should ideally be around 15-20% for storage."),
+         
+        # --- FALLBACK ---
+        (["help", "options"], 
+         "You can ask me about: 'Symptoms of Blight', 'How to treat Rust', 'Watering needs', 'Fertilizer tips', or 'Harvesting'."),
+    ]
+
+    for keywords, response in CHAT_RULES:
+        # Check if ANY keyword matches the user message
+        if any(k in user_msg for k in keywords):
+            return Response({"response": response})
+            
+    # Default response if no match
+    return Response({"response": "I'm not sure about that. Try asking about 'Blight symptoms', 'Treating Rust', or 'Watering corn'."})
