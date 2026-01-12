@@ -3,9 +3,12 @@ import api from '../api';
 import './Chatbot.css';
 
 const Chatbot = () => {
-    const [messages, setMessages] = useState([
-        { text: "Hello! I'm your Plant Care Assistant. Ask me anything about your plants! 🌱", sender: 'bot' }
-    ]);
+    const [messages, setMessages] = useState(() => {
+        const savedChats = localStorage.getItem('chatHistory');
+        return savedChats ? JSON.parse(savedChats) : [
+            { text: "Hello! I'm your Plant Care Assistant. Ask me anything about your plants! 🌱", sender: 'bot' }
+        ];
+    });
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef(null);
@@ -15,6 +18,18 @@ const Chatbot = () => {
     };
 
     useEffect(scrollToBottom, [messages]);
+
+    useEffect(() => {
+        localStorage.setItem('chatHistory', JSON.stringify(messages));
+    }, [messages]);
+
+    const handleClear = () => {
+        if (window.confirm("Are you sure you want to clear the chat history?")) {
+            const initialMsg = [{ text: "Hello! I'm your Plant Care Assistant. Ask me anything about your plants! 🌱", sender: 'bot' }];
+            setMessages(initialMsg);
+            localStorage.setItem('chatHistory', JSON.stringify(initialMsg));
+        }
+    };
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -40,7 +55,12 @@ const Chatbot = () => {
 
     return (
         <div className="chatbot-container">
-            <h1 className="chat-title">Plant Assistant 🤖</h1>
+            <div className="chatbot-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h1 className="chat-title" style={{ margin: 0 }}>Plant Assistant 🤖</h1>
+                <button onClick={handleClear} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    Clear Chat
+                </button>
+            </div>
             <div className="chat-window">
                 <div className="messages-list">
                     {messages.map((msg, index) => (
