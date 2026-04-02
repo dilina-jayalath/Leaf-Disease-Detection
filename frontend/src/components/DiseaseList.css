@@ -10,6 +10,12 @@
     font-weight: 600;
 }
 
+.search-summary {
+    margin: 8px 0 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
 /* Statistics Row */
 .stats-row {
     display: grid;

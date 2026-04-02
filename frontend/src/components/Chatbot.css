@@ -13,6 +13,20 @@
     margin-bottom: 1rem;
 }
 
+.chat-source {
+    margin: 0.35rem 0 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.chat-source.ai {
+    color: #1f7a46;
+}
+
+.chat-source.rules {
+    color: #a16207;
+}
+
 .chat-window {
     flex: 1;
     background: white;

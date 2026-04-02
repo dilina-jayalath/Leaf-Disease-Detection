@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Edit2, Trash2 } from 'lucide-react';
 import api from '../api';
 import './DiseaseList.css';
@@ -7,6 +7,7 @@ import './DiseaseList.css';
 const DiseaseList = ({ showStats = true }) => {
     const [diseases, setDiseases] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchParams] = useSearchParams();
 
     const [editingId, setEditingId] = useState(null);
     const [noteText, setNoteText] = useState("");
@@ -41,11 +42,30 @@ const DiseaseList = ({ showStats = true }) => {
             });
     }, [showStats]);
 
+    const searchQuery = searchParams.get('search')?.trim().toLowerCase() || '';
+    const filteredDiseases = diseases.filter((disease) => {
+        if (!searchQuery) {
+            return true;
+        }
+
+        const searchableText = [
+            disease.name,
+            disease.description,
+            disease.notes,
+            disease.timestamp,
+        ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+
+        return searchableText.includes(searchQuery);
+    });
+
     // Stats calculation (works for both, but more relevant for predictions)
     const stats = {
-        total: diseases.length,
-        healthy: diseases.filter(d => d.name.toLowerCase().includes('healthy')).length,
-        attention: diseases.filter(d => !d.name.toLowerCase().includes('healthy')).length
+        total: filteredDiseases.length,
+        healthy: filteredDiseases.filter(d => d.name.toLowerCase().includes('healthy')).length,
+        attention: filteredDiseases.filter(d => !d.name.toLowerCase().includes('healthy')).length
     };
 
     const handleDelete = (id) => {
@@ -116,9 +136,14 @@ const DiseaseList = ({ showStats = true }) => {
                 <h2 className="section-title" style={{ margin: 0 }}>
                     {showStats ? "Recent Assessments" : "All Records"}
                 </h2>
+                {searchQuery && (
+                    <p className="search-summary">
+                        Showing {filteredDiseases.length} of {diseases.length} result{filteredDiseases.length === 1 ? '' : 's'} for "{searchParams.get('search')}"
+                    </p>
+                )}
             </div>
             <div className="disease-grid">
-                {diseases.map(disease => {
+                {filteredDiseases.map(disease => {
                     const isHealthy = disease.name.toLowerCase().includes('healthy');
                     return (
                         <div key={disease.uniqueKey || disease.id} className={`disease-card ${isHealthy ? 'card-healthy' : 'card-alert'}`}>
@@ -161,10 +186,16 @@ const DiseaseList = ({ showStats = true }) => {
                 })}
             </div>
 
-            {diseases.length === 0 && (
+            {filteredDiseases.length === 0 && (
                 <div className="empty-state">
-                    <p>No records found. Start by identifying a plant sickness.</p>
-                    <Link to="/identify" className="btn-primary">Identify Now</Link>
+                    <p>
+                        {searchQuery
+                            ? `No results found for "${searchParams.get('search')}".`
+                            : 'No records found. Start by identifying a plant sickness.'}
+                    </p>
+                    {!searchQuery && (
+                        <Link to="/identify" className="btn-primary">Identify Now</Link>
+                    )}
                 </div>
             )}
 

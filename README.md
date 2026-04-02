@@ -12,9 +12,55 @@ A complete web application for detecting Corn plant diseases (Blight, Common Rus
 ## Features
 
 *   **Disease Identification**: Upload a leaf image to detect diseases.
-*   **Plant Assistant**: AI Chatbot for care tips and disease info.
+*   **Plant Assistant**: Authenticated chat assistant with Gemini or OpenAI support, plus a built-in rule-based fallback.
 *   **Dashboard**: Manage potential disease entries.
 *   **Detailed Insights**: View Symptoms, Causes, Treatment, and Prevention.
+
+## AI Chat Agent Setup
+
+The chat endpoint now supports two AI providers:
+
+*   **Gemini** through Google's OpenAI-compatible `chat/completions` endpoint.
+*   **OpenAI** through the `Responses` API.
+
+If no working AI provider is configured, the backend automatically falls back to the local rule-based chatbot.
+
+### Gemini Setup
+
+Set these environment variables before starting Django:
+
+```bash
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_CHAT_MODEL=gemini-2.5-flash
+GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
+GEMINI_MAX_OUTPUT_TOKENS=500
+GEMINI_TIMEOUT_SECONDS=25
+```
+
+Optional:
+
+```bash
+GEMINI_REASONING_EFFORT=low
+```
+
+### OpenAI Setup
+
+```bash
+AI_PROVIDER=openai
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_CHAT_MODEL=gpt-5.4-mini
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_REASONING_EFFORT=none
+OPENAI_MAX_OUTPUT_TOKENS=500
+OPENAI_TIMEOUT_SECONDS=25
+```
+
+Notes:
+
+*   If `AI_PROVIDER` is not set, the backend auto-selects `gemini` when `GEMINI_API_KEY` exists, otherwise `openai` when `OPENAI_API_KEY` exists.
+*   The frontend sends recent chat history to the backend so replies remain conversational.
+*   Keep API keys only on the backend, never in frontend code.
 
 ## Setup Instructions
 
@@ -30,6 +76,12 @@ cd backend
 
 # Install dependencies
 pip install -r ../requirements.txt
+
+# Optional: configure AI chat agent
+# PowerShell example for Gemini:
+# $env:AI_PROVIDER="gemini"
+# $env:GEMINI_API_KEY="your_gemini_api_key_here"
+# $env:GEMINI_CHAT_MODEL="gemini-2.5-flash"
 
 # Run Migrations
 python manage.py migrate
