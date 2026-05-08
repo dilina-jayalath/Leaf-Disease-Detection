@@ -1,12 +1,15 @@
 import os
+import re
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
-from django.test import SimpleTestCase
+from django.core import mail
+from django.test import SimpleTestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from .models import PasswordResetOTP
 from .chatbot import (
     build_rule_based_response,
     extract_chat_completions_text,
@@ -139,3 +142,179 @@ class ChatbotApiTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["error"], "Message is required.")
+
+
+class AuthApiTests(APITestCase):
+    def test_register_creates_account_with_normalized_email(self):
+        response = self.client.post(
+            reverse("auth_register"),
+            {
+                "email": " Farmer@Example.COM ",
+                "password": "new-pass-12345",
+                "confirm_password": "new-pass-12345",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        user = User.objects.get()
+        self.assertEqual(user.email, "farmer@example.com")
+        self.assertEqual(user.username, "farmer@example.com")
+
+    def test_register_rejects_duplicate_email(self):
+        User.objects.create_user(
+            username="farmer@example.com",
+            email="farmer@example.com",
+            password="old-pass-123",
+        )
+
+        response = self.client.post(
+            reverse("auth_register"),
+            {
+                "email": "farmer@example.com",
+                "password": "new-pass-12345",
+                "confirm_password": "new-pass-12345",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(User.objects.count(), 1)
+        self.assertEqual(response.data["email"][0], "This email is already in use.")
+
+    def test_register_rejects_duplicate_email_case_insensitively(self):
+        User.objects.create_user(
+            username="farmer@example.com",
+            email="farmer@example.com",
+            password="old-pass-123",
+        )
+
+        response = self.client.post(
+            reverse("auth_register"),
+            {
+                "email": "FARMER@example.com",
+                "password": "new-pass-12345",
+                "confirm_password": "new-pass-12345",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(User.objects.count(), 1)
+        self.assertEqual(response.data["email"][0], "This email is already in use.")
+
+    def test_token_login_accepts_email_case_insensitively(self):
+        User.objects.create_user(
+            username="admi@test.com",
+            email="admi@test.com",
+            password="new-pass-12345",
+        )
+
+        response = self.client.post(
+            reverse("token_obtain_pair"),
+            {"username": "ADMI@test.com", "password": "new-pass-12345"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access", response.data)
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class PasswordResetApiTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="farmer@example.com",
+            email="farmer@example.com",
+            password="old-pass-123",
+        )
+        self.request_url = reverse("password_reset_request")
+        self.confirm_url = reverse("password_reset_confirm")
+
+    def test_password_reset_request_sends_otp_email(self):
+        response = self.client.post(self.request_url, {"email": self.user.email}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(PasswordResetOTP.objects.filter(user=self.user, used_at__isnull=True).count(), 1)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("password reset OTP", mail.outbox[0].subject)
+
+    def test_password_reset_request_rejects_unknown_email(self):
+        response = self.client.post(self.request_url, {"email": "missing@example.com"}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(PasswordResetOTP.objects.count(), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_password_reset_confirm_updates_password(self):
+        self.client.post(self.request_url, {"email": self.user.email}, format="json")
+        otp = re.search(r"\b\d{6}\b", mail.outbox[0].body).group(0)
+
+        response = self.client.post(
+            self.confirm_url,
+            {
+                "email": self.user.email,
+                "otp": otp,
+                "password": "new-pass-12345",
+                "confirm_password": "new-pass-12345",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("new-pass-12345"))
+        self.assertFalse(PasswordResetOTP.objects.filter(user=self.user, used_at__isnull=True).exists())
+
+    def test_password_reset_confirm_rejects_invalid_otp(self):
+        self.client.post(self.request_url, {"email": self.user.email}, format="json")
+
+        response = self.client.post(
+            self.confirm_url,
+            {
+                "email": self.user.email,
+                "otp": "000000",
+                "password": "new-pass-12345",
+                "confirm_password": "new-pass-12345",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("old-pass-123"))
+
+    def test_password_reset_confirm_rejects_missing_otp(self):
+        self.client.post(self.request_url, {"email": self.user.email}, format="json")
+
+        response = self.client.post(
+            self.confirm_url,
+            {
+                "email": self.user.email,
+                "password": "new-pass-12345",
+                "confirm_password": "new-pass-12345",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("old-pass-123"))
+
+    def test_password_reset_confirm_rejects_non_numeric_otp(self):
+        self.client.post(self.request_url, {"email": self.user.email}, format="json")
+
+        response = self.client.post(
+            self.confirm_url,
+            {
+                "email": self.user.email,
+                "otp": "abcdef",
+                "password": "new-pass-12345",
+                "confirm_password": "new-pass-12345",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("old-pass-123"))

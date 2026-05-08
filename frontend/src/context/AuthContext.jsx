@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 'username': e.target.email.value, 'password': e.target.password.value })
+                body: JSON.stringify({ 'username': e.target.email.value.trim(), 'password': e.target.password.value })
             });
             let data = await response.json();
 
@@ -43,33 +43,46 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem('authTokens', JSON.stringify(data));
                 console.log("Login successful, navigating to /");
                 navigate('/');
+                return null;
             } else {
-                alert('Something went wrong!');
+                return data?.detail || 'Invalid email or password.';
             }
         } catch (error) {
             console.error("Login failed:", error);
-            alert("Login failed!");
+            return 'Login failed. Please try again.';
         }
     };
 
     let registerUser = async (e) => {
         e.preventDefault();
-        let response = await fetch('http://localhost:8000/api/register/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                'email': e.target.email.value,
-                'password': e.target.password.value,
-                'confirm_password': e.target.confirm_password.value
-            })
-        });
+        try {
+            let response = await fetch('http://localhost:8000/api/register/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'email': e.target.email.value.trim(),
+                    'password': e.target.password.value,
+                    'confirm_password': e.target.confirm_password.value
+                })
+            });
+            let data = await response.json();
 
-        if (response.status === 201) {
-            loginUser(e); // Auto login
-        } else {
-            alert('Registration failed!');
+            if (response.status === 201) {
+                await loginUser(e); // Auto login
+                return null;
+            }
+
+            return (
+                data?.email?.[0] ||
+                data?.password?.[0] ||
+                data?.non_field_errors?.[0] ||
+                'Registration failed!'
+            );
+        } catch (error) {
+            console.error("Registration failed:", error);
+            return 'Registration failed!';
         }
     }
 

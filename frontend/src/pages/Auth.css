@@ -53,3 +53,19 @@
 .auth-link a:hover {
   text-decoration: underline;
 }
+
+.auth-forgot-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -8px;
+}
+
+.auth-forgot-row a {
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.auth-forgot-row a:hover {
+  text-decoration: underline;
+}

@@ -63,6 +63,28 @@ Notes:
 *   Keep API keys only on the backend, never in frontend code.
 *   The local `.env` file is ignored by Git. Commit `.env.example`, but do not commit real secrets.
 
+## Password Reset Email Setup
+
+The forgot-password flow sends a 6-digit OTP to the user's account email. In local development, emails are printed in the Django terminal by default:
+
+```env
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+DEFAULT_FROM_EMAIL=VerdantEye <no-reply@verdanteye.local>
+PASSWORD_RESET_OTP_MINUTES=10
+```
+
+For production, configure SMTP in `.env`:
+
+```env
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your_email@gmail.com
+EMAIL_HOST_PASSWORD=your_app_password
+DEFAULT_FROM_EMAIL=VerdantEye <your_email@gmail.com>
+```
+
 ## Setup Instructions
 
 ### 1. Backend (Django)

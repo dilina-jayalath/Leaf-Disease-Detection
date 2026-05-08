@@ -58,13 +58,16 @@ const ProfilePage = () => {
   };
 
   const handleDelete = async () => {
+    setError(null);
+    setSuccessMsg('');
+
     if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
       try {
         await api.delete('profile/delete/');
         logoutUser();
       } catch (err) {
         console.error('Delete failed:', err);
-        alert('Failed to delete account. Please try again.');
+        setError('Failed to delete account. Please try again.');
       }
     }
   };

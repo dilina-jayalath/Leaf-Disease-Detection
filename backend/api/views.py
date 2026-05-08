@@ -15,6 +15,8 @@ from .models import Disease, PredictionHistory
 from .serializers import (
     DiseaseSerializer,
     MyTokenObtainPairSerializer,
+    PasswordResetConfirmSerializer,
+    PasswordResetRequestSerializer,
     PredictionSerializer,
     UserSerializer,
     UserUpdateSerializer,
@@ -44,6 +46,34 @@ class UserDeleteView(generics.DestroyAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class PasswordResetRequestView(generics.GenericAPIView):
+    serializer_class = PasswordResetRequestSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"detail": "OTP sent to your email."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordResetConfirmView(generics.GenericAPIView):
+    serializer_class = PasswordResetConfirmSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"detail": "Password updated successfully. You can now log in."},
+            status=status.HTTP_200_OK,
+        )
 
 # ------------------------------------------------------------
 # MODEL LOADING (PyTorch)

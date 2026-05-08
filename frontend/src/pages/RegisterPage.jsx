@@ -1,12 +1,24 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Paper, TextField, Typography } from '@mui/material';
-import { Leaf } from 'lucide-react';
+import { Alert, Button, IconButton, InputAdornment, Paper, TextField, Typography } from '@mui/material';
+import { Eye, EyeOff, Leaf } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import './Auth.css';
 
 const RegisterPage = () => {
   const { registerUser } = useContext(AuthContext);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSubmit = async (event) => {
+    setErrorMessage('');
+    const error = await registerUser(event);
+
+    if (error) {
+      setErrorMessage(error);
+    }
+  };
 
   return (
     <div className="auth-container">
@@ -21,15 +33,65 @@ const RegisterPage = () => {
           <Typography color="text.secondary">Start tracking plant health assessments.</Typography>
         </div>
 
-        <form onSubmit={registerUser} className="auth-form">
-          <TextField fullWidth type="email" name="email" label="Email" required />
-          <TextField fullWidth type="password" name="password" label="Password" required />
+        <form onSubmit={handleSubmit} className="auth-form">
+          {errorMessage && (
+            <Alert severity="error" variant="outlined">
+              {errorMessage}
+            </Alert>
+          )}
           <TextField
             fullWidth
-            type="password"
+            type="email"
+            name="email"
+            label="Email"
+            required
+            error={Boolean(errorMessage)}
+          />
+          <TextField
+            fullWidth
+            type={showPassword ? 'text' : 'password'}
+            name="password"
+            label="Password"
+            required
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      type="button"
+                      edge="end"
+                      onClick={() => setShowPassword((current) => !current)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+          <TextField
+            fullWidth
+            type={showConfirmPassword ? 'text' : 'password'}
             name="confirm_password"
             label="Confirm Password"
             required
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      type="button"
+                      edge="end"
+                      onClick={() => setShowConfirmPassword((current) => !current)}
+                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
           <Button type="submit" variant="contained" fullWidth size="large">
             Register
