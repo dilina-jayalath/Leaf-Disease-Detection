@@ -27,9 +27,9 @@ If no working AI provider is configured, the backend automatically falls back to
 
 ### Gemini Setup
 
-Set these environment variables before starting Django:
+Create a local `.env` file in the project root. You can copy `.env.example` and replace the placeholder key:
 
-```bash
+```env
 AI_PROVIDER=gemini
 GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_CHAT_MODEL=gemini-2.5-flash
@@ -61,6 +61,7 @@ Notes:
 *   If `AI_PROVIDER` is not set, the backend auto-selects `gemini` when `GEMINI_API_KEY` exists, otherwise `openai` when `OPENAI_API_KEY` exists.
 *   The frontend sends recent chat history to the backend so replies remain conversational.
 *   Keep API keys only on the backend, never in frontend code.
+*   The local `.env` file is ignored by Git. Commit `.env.example`, but do not commit real secrets.
 
 ## Setup Instructions
 
@@ -78,10 +79,7 @@ cd backend
 pip install -r ../requirements.txt
 
 # Optional: configure AI chat agent
-# PowerShell example for Gemini:
-# $env:AI_PROVIDER="gemini"
-# $env:GEMINI_API_KEY="your_gemini_api_key_here"
-# $env:GEMINI_CHAT_MODEL="gemini-2.5-flash"
+# Copy ../.env.example to ../.env and add your real Gemini API key.
 
 # Run Migrations
 python manage.py migrate
