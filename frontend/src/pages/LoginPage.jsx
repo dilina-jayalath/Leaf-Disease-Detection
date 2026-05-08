@@ -1,32 +1,40 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { Button, Paper, TextField, Typography } from '@mui/material';
+import { Leaf } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import './Auth.css';
 
 const LoginPage = () => {
-    let { loginUser } = useContext(AuthContext);
+  const { loginUser } = useContext(AuthContext);
 
-    return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <h2>Login to VerdantEye</h2>
-                <form onSubmit={loginUser}>
-                    <div className="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" placeholder="Enter Email" required />
-                    </div>
-                    <div className="form-group">
-                        <label>Password</label>
-                        <input type="password" name="password" placeholder="Enter Password" required />
-                    </div>
-                    <button type="submit" className="btn-primary" style={{ width: '100%' }}>Login</button>
-                    <p className="auth-link">
-                        Don't have an account? <Link to="/register">Register</Link>
-                    </p>
-                </form>
-            </div>
+  return (
+    <div className="auth-container">
+      <Paper variant="outlined" className="auth-card">
+        <div className="auth-brand">
+          <div className="auth-logo">
+            <Leaf size={26} />
+          </div>
+          <Typography variant="h4" fontWeight={900}>
+            VerdantEye
+          </Typography>
+          <Typography color="text.secondary">Sign in to your crop diagnostics workspace.</Typography>
         </div>
-    );
+
+        <form onSubmit={loginUser} className="auth-form">
+          <TextField fullWidth type="email" name="email" label="Email" required />
+          <TextField fullWidth type="password" name="password" label="Password" required />
+          <Button type="submit" variant="contained" fullWidth size="large">
+            Login
+          </Button>
+        </form>
+
+        <Typography className="auth-link" color="text.secondary">
+          Do not have an account? <Link to="/register">Create one</Link>
+        </Typography>
+      </Paper>
+    </div>
+  );
 };
 
 export default LoginPage;

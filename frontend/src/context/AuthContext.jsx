@@ -1,6 +1,5 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api';
 import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext();
@@ -21,7 +20,7 @@ export const AuthProvider = ({ children }) => {
         }
         return null;
     });
-    let [loading, setLoading] = useState(true);
+    let [loading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -91,12 +90,6 @@ export const AuthProvider = ({ children }) => {
         registerUser: registerUser,
         logoutUser: logoutUser,
     };
-
-    useEffect(() => {
-        if (loading) {
-            setLoading(false);
-        }
-    }, [authTokens, loading]);
 
     return (
         <AuthContext.Provider value={contextData}>

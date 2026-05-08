@@ -1,83 +1,69 @@
 .disease-detail-container {
-    padding: 2rem;
-    max-width: 900px;
-    margin: 0 auto;
+  display: grid;
+  gap: 16px;
+  max-width: 1080px;
+  margin: 0 auto;
 }
 
-.back-link {
-    display: inline-block;
-    margin-bottom: 1rem;
-    color: #3498db;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.detail-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+.detail-paper {
+  overflow: hidden;
+  background: var(--color-surface);
 }
 
 .detail-image {
-    width: 100%;
-    max-height: 400px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 2rem;
+  width: 100%;
+  max-height: 420px;
+  display: block;
+  object-fit: cover;
+  background: var(--color-surface-muted);
 }
 
-h1 {
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
+.detail-content {
+  display: grid;
+  gap: 24px;
+  padding: 24px;
 }
 
-section {
-    margin-bottom: 2rem;
+.note-section {
+  padding: 16px;
+  background: var(--color-surface-muted);
 }
 
-section h2 {
-    color: #27ae60;
-    border-bottom: 2px solid #ecf0f1;
-    padding-bottom: 0.5rem;
+.detail-description {
+  display: grid;
+  gap: 8px;
 }
 
 .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .info-box {
-    padding: 1.5rem;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    border-left: 5px solid #bdc3c7;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 12px;
+  padding: 16px;
+  background: var(--color-surface);
 }
 
-.info-box h3 {
-    margin-top: 0;
-    font-size: 1.1rem;
+.info-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
 }
 
-.symptoms {
-    border-left-color: #e74c3c;
-}
+@media (max-width: 720px) {
+  .detail-content {
+    padding: 18px;
+  }
 
-.causes {
-    border-left-color: #f39c12;
-}
-
-.treatment {
-    border-left-color: #3498db;
-}
-
-.prevention {
-    border-left-color: #2ecc71;
-}
-
-@media (max-width: 768px) {
-    .info-grid {
-        grid-template-columns: 1fr;
-    }
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
 }

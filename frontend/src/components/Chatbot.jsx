@@ -1,4 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
+import {
+  Button,
+  Chip,
+  IconButton,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { Bot, Send, Trash2 } from 'lucide-react';
 import api from '../api';
 import './Chatbot.css';
 
@@ -21,11 +31,9 @@ const Chatbot = () => {
   const [chatProvider, setChatProvider] = useState(null);
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => {
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(scrollToBottom, [messages]);
+  }, [messages]);
 
   useEffect(() => {
     localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
@@ -66,85 +74,97 @@ const Chatbot = () => {
         message: trimmedInput,
         history,
       });
-      const botMessage = {
-        text: response.data.response,
-        sender: 'bot',
-      };
 
       setChatSource(response.data.source || null);
       setChatProvider(response.data.provider || null);
-      setMessages((previousMessages) => [...previousMessages, botMessage]);
+      setMessages((previousMessages) => [
+        ...previousMessages,
+        { text: response.data.response, sender: 'bot' },
+      ]);
     } catch (error) {
       console.error('Chatbot error:', error);
       setChatSource(null);
       setChatProvider(null);
-      const fallbackMessage = {
-        text: 'Sorry, the assistant is unavailable right now.',
-        sender: 'bot',
-      };
-      setMessages((previousMessages) => [...previousMessages, fallbackMessage]);
+      setMessages((previousMessages) => [
+        ...previousMessages,
+        { text: 'Sorry, the assistant is unavailable right now.', sender: 'bot' },
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
+  const providerLabel =
+    chatSource === 'ai'
+      ? `${chatProvider === 'gemini' ? 'Gemini' : chatProvider === 'openai' ? 'OpenAI' : 'AI'} active`
+      : chatSource
+        ? 'Rule-based fallback'
+        : 'Ready';
+
   return (
-    <div className="chatbot-container">
-      <div
-        className="chatbot-header"
-        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}
-      >
-        <div>
-          <h1 className="chat-title" style={{ margin: 0 }}>
-            Plant Assistant
-          </h1>
-          {chatSource && (
-            <p className={`chat-source ${chatSource}`}>
-              {chatSource === 'ai'
-                ? `${chatProvider === 'gemini' ? 'Gemini' : chatProvider === 'openai' ? 'OpenAI' : 'AI'} agent active`
-                : 'Rule-based fallback active'}
-            </p>
-          )}
-        </div>
-        <button
-          onClick={handleClear}
-          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.9rem' }}
-        >
-          Clear Chat
-        </button>
-      </div>
-      <div className="chat-window">
-        <div className="messages-list">
-          {messages.map((message, index) => (
-            <div key={index} className={`message ${message.sender}`}>
-              <div className="message-bubble">{message.text}</div>
-            </div>
-          ))}
-          {loading && (
-            <div className="message bot">
-              <div className="message-bubble typing">
-                <span>.</span>
-                <span>.</span>
-                <span>.</span>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-        <form className="chat-input-form" onSubmit={handleSend}>
-          <input
-            type="text"
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            placeholder="Type a message..."
-            disabled={loading}
+    <Paper variant="outlined" className="chatbot-shell">
+      <div className="chatbot-header">
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          <div className="assistant-icon">
+            <Bot size={22} />
+          </div>
+          <div>
+            <Typography variant="h5" fontWeight={800}>
+              Plant Assistant
+            </Typography>
+            <Typography color="text.secondary" fontSize={14}>
+              Ask about symptoms, treatment, prevention, and crop care.
+            </Typography>
+          </div>
+        </Stack>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Chip
+            color={chatSource === 'ai' ? 'success' : chatSource === 'rules' ? 'warning' : 'default'}
+            label={providerLabel}
+            size="small"
           />
-          <button type="submit" disabled={loading || !input.trim()}>
-            Send
-          </button>
-        </form>
+          <IconButton onClick={handleClear} aria-label="Clear chat" color="error">
+            <Trash2 size={18} />
+          </IconButton>
+        </Stack>
       </div>
-    </div>
+
+      <div className="messages-list">
+        {messages.map((message, index) => (
+          <div key={index} className={`message ${message.sender}`}>
+            <div className="message-bubble">{message.text}</div>
+          </div>
+        ))}
+        {loading && (
+          <div className="message bot">
+            <div className="message-bubble typing">
+              <span />
+              <span />
+              <span />
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      <form className="chat-input-form" onSubmit={handleSend}>
+        <TextField
+          fullWidth
+          value={input}
+          onChange={(event) => setInput(event.target.value)}
+          placeholder="Type a plant care question"
+          disabled={loading}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={loading || !input.trim()}
+          endIcon={<Send size={17} />}
+        >
+          Send
+        </Button>
+      </form>
+    </Paper>
   );
 };
 

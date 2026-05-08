@@ -1,70 +1,84 @@
 import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Leaf, MessageSquare, Flower2, ScanLine, X, LogOut } from 'lucide-react';
+import {
+  BookOpenCheck,
+  LayoutDashboard,
+  Leaf,
+  LogOut,
+  MessageSquare,
+  ScanLine,
+  UserRound,
+  X,
+} from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import './Sidebar.css';
 
+const getInitials = (name) => {
+  if (!name) return 'U';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length > 1) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+};
+
 const Sidebar = ({ isOpen, onClose }) => {
-    let { user, logoutUser } = useContext(AuthContext);
+  const { user, logoutUser } = useContext(AuthContext);
+  const username = user?.username || 'User';
 
-    return (
-        <>
-            <div className={`sidebar-overlay ${isOpen ? 'open' : ''}`} onClick={onClose}></div>
-            <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-                <div className="sidebar-logo">
-                    <div className="logo-icon">
-                        <Leaf size={24} strokeWidth={2.5} />
-                    </div>
-                    <div className="logo-text">VerdantEye</div>
-                    <button className="close-btn" onClick={onClose}>
-                        <X size={24} color="#5e6d62" />
-                    </button>
-                </div>
+  return (
+    <>
+      <div className={`sidebar-overlay ${isOpen ? 'open' : ''}`} onClick={onClose} />
+      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+        <div className="sidebar-logo">
+          <div className="logo-icon">
+            <Leaf size={22} strokeWidth={2.5} />
+          </div>
+          <div>
+            <div className="logo-text">VerdantEye</div>
+            <div className="logo-caption">Plant diagnostics</div>
+          </div>
+          <button className="close-btn" onClick={onClose} aria-label="Close navigation">
+            <X size={22} />
+          </button>
+        </div>
 
-                <nav className="sidebar-nav">
-                    <div className="nav-section">
-                        <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                            <LayoutDashboard size={20} className="nav-icon" />
-                            Dashboard
-                        </NavLink>
-                        <NavLink to="/diseases" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                            <Flower2 size={20} className="nav-icon" />
-                            Diseases
-                        </NavLink>
-                        <NavLink to="/identify" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                            <ScanLine size={20} className="nav-icon" />
-                            Identify
-                        </NavLink>
-                        <NavLink to="/chat" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                            <MessageSquare size={20} className="nav-icon" />
-                            Assistant
-                        </NavLink>
-                    </div>
-                </nav>
+        <nav className="sidebar-nav" aria-label="Main navigation">
+          <NavLink to="/" end className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <LayoutDashboard size={19} className="nav-icon" />
+            <span>Dashboard</span>
+          </NavLink>
+          <NavLink to="/diseases" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <BookOpenCheck size={19} className="nav-icon" />
+            <span>Disease Library</span>
+          </NavLink>
+          <NavLink to="/identify" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <ScanLine size={19} className="nav-icon" />
+            <span>Identify</span>
+          </NavLink>
+          <NavLink to="/chat" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <MessageSquare size={19} className="nav-icon" />
+            <span>Assistant</span>
+          </NavLink>
+        </nav>
 
-                <div className="sidebar-footer">
-                    <NavLink to="/profile" className="user-profile-link" style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}>
-                        <div className="user-profile">
-                            <div className="user-avatar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e2e8f0', color: '#64748b', fontWeight: 'bold' }}>
-                                {user && user.username ? (
-                                    user.username.split(' ').length > 1
-                                        ? (user.username.split(' ')[0][0] + user.username.split(' ')[1][0]).toUpperCase()
-                                        : user.username.slice(0, 2).toUpperCase()
-                                ) : 'U'}
-                            </div>
-                            <div className="user-info">
-                                <h4>{user ? user.username : 'User'}</h4>
-                                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Active Now</span>
-                            </div>
-                        </div>
-                    </NavLink>
-                    <button onClick={logoutUser} className="logout-btn" title="Logout" style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: 'auto', color: '#ef4444', position: 'absolute', right: '20px', bottom: '25px' }}>
-                        <LogOut size={20} />
-                    </button>
-                </div>
-            </aside>
-        </>
-    );
+        <div className="sidebar-footer">
+          <NavLink to="/profile" className="user-profile-link">
+            <div className="user-avatar">{getInitials(username)}</div>
+            <div className="user-info">
+              <h4>{username}</h4>
+              <span>Account settings</span>
+            </div>
+            <UserRound size={18} className="profile-cue" />
+          </NavLink>
+          <button onClick={logoutUser} className="logout-btn">
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+    </>
+  );
 };
 
 export default Sidebar;
