@@ -238,6 +238,7 @@ class PasswordResetApiTests(APITestCase):
         self.assertEqual(PasswordResetOTP.objects.filter(user=self.user, used_at__isnull=True).count(), 1)
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn("password reset OTP", mail.outbox[0].subject)
+        self.assertEqual(mail.outbox[0].alternatives[0][1], "text/html")
 
     def test_password_reset_request_rejects_unknown_email(self):
         response = self.client.post(self.request_url, {"email": "missing@example.com"}, format="json")

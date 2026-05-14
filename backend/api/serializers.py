@@ -3,7 +3,8 @@ import hashlib
 
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta
@@ -92,16 +93,30 @@ class PasswordResetRequestSerializer(serializers.Serializer):
             expires_at=expires_at,
         )
 
-        send_mail(
-            subject='Your VerdantEye password reset OTP',
-            message=(
-                f'Your VerdantEye password reset OTP is {otp}. '
-                f'This code expires in {getattr(settings, "PASSWORD_RESET_OTP_MINUTES", 10)} minutes.'
-            ),
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
-            recipient_list=[user.email],
-            fail_silently=False,
+        expires_minutes = getattr(settings, 'PASSWORD_RESET_OTP_MINUTES', 10)
+        subject = 'Your VerdantEye password reset OTP'
+        text_message = (
+            f'Your VerdantEye password reset OTP is {otp}.\n\n'
+            f'This code expires in {expires_minutes} minutes.\n'
+            'If you did not request a password reset, you can ignore this email.'
         )
+        html_message = render_to_string(
+            'api/password_reset_otp_email.html',
+            {
+                'otp': otp,
+                'expires_minutes': expires_minutes,
+                'user_email': user.email,
+            },
+        )
+
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_message,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
+            to=[user.email],
+        )
+        email.attach_alternative(html_message, 'text/html')
+        email.send(fail_silently=False)
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
