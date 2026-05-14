@@ -82,12 +82,15 @@ const DiseaseList = ({ showStats = true }) => {
     attention: filteredDiseases.filter((d) => !d.name.toLowerCase().includes('healthy')).length,
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this assessment?')) {
+  const handleDelete = (disease) => {
+    const itemLabel = showStats ? 'assessment' : 'disease record';
+    const endpoint = showStats ? `predictions/${disease.id}/` : `diseases/${disease.id}/`;
+
+    if (window.confirm(`Are you sure you want to delete this ${itemLabel}?`)) {
       api
-        .delete(`predictions/${id}/`)
+        .delete(endpoint)
         .then(() => {
-          setDiseases(diseases.filter((d) => d.id !== id));
+          setDiseases(diseases.filter((d) => d.id !== disease.id));
         })
         .catch((err) => console.error('Error deleting:', err));
     }
@@ -229,25 +232,23 @@ const DiseaseList = ({ showStats = true }) => {
                     View Report
                   </Button>
                   {showStats && (
-                    <>
-                      <button
-                        className="btn-icon"
-                        title="Edit note"
-                        aria-label="Edit note"
-                        onClick={() => handleEditClick(disease)}
-                      >
-                        <Edit2 size={18} />
-                      </button>
-                      <button
-                        className="btn-icon danger-icon"
-                        title="Delete assessment"
-                        aria-label="Delete assessment"
-                        onClick={() => handleDelete(disease.id)}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </>
+                    <button
+                      className="btn-icon"
+                      title="Edit note"
+                      aria-label="Edit note"
+                      onClick={() => handleEditClick(disease)}
+                    >
+                      <Edit2 size={18} />
+                    </button>
                   )}
+                  <button
+                    className="btn-icon danger-icon"
+                    title={showStats ? 'Delete assessment' : 'Delete disease record'}
+                    aria-label={showStats ? 'Delete assessment' : 'Delete disease record'}
+                    onClick={() => handleDelete(disease)}
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               </div>
             </Paper>
